@@ -13,7 +13,7 @@ bot.command("start", async (ctx) => {
 bot.api.setChatMenuButton({
     menu_button: {
         type: "web_app",
-        text: "Открыть приложение",
+        text: "Open app",
         web_app: { url: webAppUrl }
     }
 }).catch(console.error);
