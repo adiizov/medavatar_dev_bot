@@ -5,6 +5,7 @@
   "scripts": {
     "start": "nodemon api/index.js"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
