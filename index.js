@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { Bot, GrammyError, HttpError, InlineKeyboard, webhookCallback } from "grammy";
+import { Bot, GrammyError, HttpError, InlineKeyboard } from "grammy";
 import cron from 'node-cron';
 
 
@@ -60,7 +60,4 @@ bot.catch((err) => {
     }
 })
 
-export default webhookCallback(bot, "https");
-
-// bot.start()
-
+bot.start()
