@@ -15,6 +15,7 @@ bot.command("start", async (ctx) => {
     await ctx.reply("Добро пожаловать!", {reply_markup: inlineKeyboard})
 })
 
+
 bot.api.setChatMenuButton({
     menu_button: {
         type: "web_app",
