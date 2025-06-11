@@ -1,11 +1,15 @@
 require('dotenv').config();
 const {Bot, GrammyError, HttpError, InlineKeyboard} = require("grammy")
+const cron = require('node-cron');
 
 const bot = new Bot(process.env.BOT_API_KEY)
 const webAppUrl = process.env.WEB_APP_URL;
-
+const userIds = new Set();
 
 bot.command("start", async (ctx) => {
+    const userId = ctx.from.id;
+    userIds.add(userId);
+
     const inlineKeyboard = new InlineKeyboard().webApp("Telegram Web App", webAppUrl)
     await ctx.reply("Добро пожаловать!", {reply_markup: inlineKeyboard})
 })
@@ -17,6 +21,26 @@ bot.api.setChatMenuButton({
         web_app: { url: webAppUrl }
     }
 }).catch(console.error);
+
+cron.schedule('0 12 * * *', async () => {
+    for (const userId of userIds) {
+        try {
+            await bot.api.sendMessage(userId, '🔔 <b>Напоминание</b>\n\nНе забудьте сегодня отметить в приложении, обошлись ли вы без вредной привычки. Это важно для отслеживания вашего прогресса 💪', {
+                parse_mode: 'HTML',
+                reply_markup: {
+                    inline_keyboard: [[
+                        {
+                            text: 'Перейти в Web App',
+                            web_app: { url: `${webAppUrl}/habits` },
+                        }
+                    ]]
+                }
+            });
+        } catch (err) {
+            console.error(`Не удалось отправить сообщение пользователю ${userId}:`, err);
+        }
+    }
+})
 
 
 bot.catch((err) => {
