@@ -1,3 +1,5 @@
+import {webhookCallback} from "grammy";
+
 require('dotenv').config();
 const {Bot, GrammyError, HttpError, InlineKeyboard} = require("grammy")
 const cron = require('node-cron');
@@ -56,4 +58,7 @@ bot.catch((err) => {
     }
 })
 
+export default webhookCallback(bot, "https");
+
 bot.start()
+
