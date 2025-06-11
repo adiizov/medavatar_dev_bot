@@ -1,5 +1,4 @@
 import {webhookCallback} from "grammy";
-
 require('dotenv').config();
 const {Bot, GrammyError, HttpError, InlineKeyboard} = require("grammy")
 const cron = require('node-cron');
@@ -19,7 +18,7 @@ bot.command("start", async (ctx) => {
 bot.api.setChatMenuButton({
     menu_button: {
         type: "web_app",
-        text: "Open app",
+        text: "Open Dev App",
         web_app: { url: webAppUrl }
     }
 }).catch(console.error);
