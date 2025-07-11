@@ -1,50 +1,98 @@
 import dotenv from 'dotenv';
 import { Bot, GrammyError, HttpError, InlineKeyboard } from "grammy";
 import cron from 'node-cron';
-
+import axios from 'axios';
 
 dotenv.config();
 
 const bot = new Bot(process.env.BOT_API_KEY)
 const webAppUrl = process.env.WEB_APP_URL;
-const userIds = new Set();
+const backendUrl = process.env.BACKEND_URL;
+
+async function scheduleDrugReminders(bot) {
+    try {
+        // Получаем данные
+        const [humanRes, petRes] = await Promise.all([
+            axios.get(`${backendUrl}/public/drugs`),
+            axios.get(`${backendUrl}/public/pet/drugs`)
+        ]);
+
+        const humanReminders = humanRes.data.map(r => ({ ...r, isPet: false }));
+        const petReminders = petRes.data.map(r => ({ ...r, isPet: true }));
+        const allReminders = [...humanReminders, ...petReminders];
+
+        for (const reminder of allReminders) {
+            const { telegram_id, name, catigories, intake, notification, day, time_day, isPet  } = reminder;
+            if (!telegram_id || !Array.isArray(notification)) continue;
+
+            for (const timeObj of notification) {
+                const [hour, minute] = timeObj.value.split(":").map(Number);
+
+                cron.schedule(`${minute} ${hour} * * *`, async () => {
+                    try {
+                        await bot.api.sendMessage(telegram_id,
+                            `💊 <b>Напоминание о приёме лекарства для ${isPet ? "питомца" : "человека"}:</b>\n\n` +
+                            `<b>Категория:</b> ${catigories}\n` +
+                            `<b>Название:</b> ${name}\n` +
+                            `<b>Курс:</b> ${day} дней, ${time_day} раза в день\n` +
+                            `<b>Способ приёма:</b> ${intake}\n`,
+                            {
+                                parse_mode: 'HTML'
+                            });
+                    } catch (err) {
+                        console.error(`Ошибка при отправке напоминания ${telegram_id} в ${timeObj.value}:`, err);
+                    }
+                });
+
+                console.log(`⏰ Запланировано: ${telegram_id} — ${name} в ${timeObj.value}`);
+            }
+        }
+    } catch (err) {
+        console.error("Ошибка при загрузке лекарств или планировании:", err);
+    }
+}
 
 bot.command("start", async (ctx) => {
-    const userId = ctx.from.id;
-    userIds.add(userId);
-
     const inlineKeyboard = new InlineKeyboard().webApp("Telegram Web App", webAppUrl)
     await ctx.reply("Добро пожаловать!", {reply_markup: inlineKeyboard})
 })
 
-
 bot.api.setChatMenuButton({
     menu_button: {
         type: "web_app",
-        text: "Open Dev App",
+        text: "Open App",
         web_app: { url: webAppUrl }
     }
 }).catch(console.error);
 
+
+// 0 12 * * *
+
 cron.schedule('0 12 * * *', async () => {
-    for (const userId of userIds) {
-        try {
-            await bot.api.sendMessage(userId, '🔔 <b>Напоминание</b>\n\nНе забудьте сегодня отметить в приложении, обошлись ли вы без вредной привычки. Это важно для отслеживания вашего прогресса 💪', {
-                parse_mode: 'HTML',
-                reply_markup: {
-                    inline_keyboard: [[
-                        {
-                            text: 'Перейти в Web App',
-                            web_app: { url: `${webAppUrl}/habits` },
-                        }
-                    ]]
-                }
-            });
-        } catch (err) {
-            console.error(`Не удалось отправить сообщение пользователю ${userId}:`, err);
+    try {
+        const response = await axios.get(`${backendUrl}/public`);
+        const users = response.data;
+
+        for (const user of users) {
+            const telegramId = user.telegram_id;
+
+            if (!telegramId) continue;
+
+            await bot.api.sendMessage(telegramId,
+                '🔔 <b>Напоминание</b>\n\nНе забудьте сегодня отметить в приложении, обошлись ли вы без вредной привычки. Это важно для отслеживания вашего прогресса 💪', {
+                    parse_mode: 'HTML',
+                    reply_markup: {
+                        inline_keyboard: [[
+                            { text: 'Перейти в Web App', web_app: { url: `${webAppUrl}/habits` } }
+                        ]]
+                    }
+                });
+            console.log(telegramId,"- пользователь с привычкой");
         }
+    } catch (err) {
+        console.error("Ошибка при получении списка пользователей или отправке сообщений:", err);
     }
-})
+});
 
 
 bot.catch((err) => {
@@ -61,3 +109,4 @@ bot.catch((err) => {
 })
 
 bot.start()
+scheduleDrugReminders(bot)
