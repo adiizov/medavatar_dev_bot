@@ -42,6 +42,8 @@ async function scheduleDrugReminders(bot) {
                     } catch (err) {
                         console.error(`Ошибка при отправке напоминания ${telegram_id} в ${timeObj.value}:`, err);
                     }
+                }, {
+                    timezone: "Asia/Tashkent"
                 });
 
                 console.log(`⏰ Запланировано: ${telegram_id} — ${name} в ${timeObj.value}`);
