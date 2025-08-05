@@ -2,12 +2,41 @@ import dotenv from 'dotenv';
 import { Bot, GrammyError, HttpError, InlineKeyboard } from "grammy";
 import cron from 'node-cron';
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const timezones = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '../public/timezone.json'), 'utf8')
+);
 
 dotenv.config();
 
 const bot = new Bot(process.env.BOT_API_KEY)
 const webAppUrl = process.env.WEB_APP_URL;
 const backendUrl = process.env.BACKEND_URL;
+
+
+function convertToIANATimezone(tz) {
+    if (tz.startsWith('UTC+')) {
+        const offset = tz.replace('UTC+', '');
+        return `Etc/GMT-${offset}`;
+    }
+    if (tz.startsWith('UTC-')) {
+        const offset = tz.replace('UTC-', '');
+        return `Etc/GMT+${offset}`;
+    }
+    return tz;
+}
+
+function getTimezoneByCity(cityName) {
+    const city = timezones.find(c => c.value.toLowerCase() === cityName.toLowerCase());
+    return city?.timezone || null;
+}
 
 async function scheduleDrugReminders(bot) {
     try {
@@ -22,11 +51,13 @@ async function scheduleDrugReminders(bot) {
         const allReminders = [...humanReminders, ...petReminders];
 
         for (const reminder of allReminders) {
-            const { telegram_id, name, catigories, intake, notification, day, time_day, isPet  } = reminder;
+            const { telegram_id, name, catigories, intake, notification, day, time_day, isPet, city  } = reminder;
             if (!telegram_id || !Array.isArray(notification)) continue;
 
             for (const timeObj of notification) {
                 const [hour, minute] = timeObj.value.split(":").map(Number);
+                const rawTimezone = getTimezoneByCity(city)
+                const timezone = convertToIANATimezone(rawTimezone);
 
                 cron.schedule(`${minute} ${hour} * * *`, async () => {
                     try {
@@ -43,10 +74,10 @@ async function scheduleDrugReminders(bot) {
                         console.error(`Ошибка при отправке напоминания ${telegram_id} в ${timeObj.value}:`, err);
                     }
                 }, {
-                    timezone: "Asia/Tashkent"
+                    timezone: timezone,
                 });
 
-                console.log(`⏰ Запланировано: ${telegram_id} — ${name} в ${timeObj.value}`);
+                // console.log(`⏰ Запланировано: ${telegram_id} — ${name} в ${timeObj.value}`);
             }
         }
     } catch (err) {

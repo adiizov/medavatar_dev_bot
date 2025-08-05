@@ -1,0 +1,161 @@
+[
+  { "id": 1, "value": "Москва",
+    "timezone": "UTC+3"
+  },
+  { "id": 2, "value": "Санкт-Петербург",
+     "timezone": "UTC+3"
+  },
+  { "id": 3, "value": "Новосибирск" ,
+     "timezone": "UTC+7"
+  },
+  { "id": 4, "value": "Екатеринбург",
+     "timezone": "UTC+5"
+  },
+  { "id": 5, "value": "Казань" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 6, "value": "Нижний Новгород",
+     "timezone": "UTC+3"
+  },
+  { "id": 7, "value": "Челябинск" ,
+     "timezone": "UTC+5"
+  },
+  { "id": 8, "value": "Омск",
+     "timezone": "UTC+6"
+  },
+  { "id": 9, "value": "Самара" ,
+     "timezone": "UTC+4"
+  },
+  { "id": 10, "value": "Ростов-на-Дону",
+     "timezone": "UTC+3"
+  },
+  { "id": 11, "value": "Уфа" ,
+     "timezone": "UTC+5"
+  },
+  { "id": 12, "value": "Красноярск",
+     "timezone": "UTC+7"
+  },
+  { "id": 13, "value": "Воронеж" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 14, "value": "Пермь",
+     "timezone": "UTC+5"
+  },
+  { "id": 15, "value": "Волгоград" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 16, "value": "Краснодар",
+     "timezone": "UTC+3"
+  },
+  { "id": 17, "value": "Саратов" ,
+     "timezone": "UTC+4"
+  },
+  { "id": 18, "value": "Тюмень",
+     "timezone": "UTC+5"
+  },
+  { "id": 19, "value": "Тольятти" ,
+     "timezone": "UTC+4"
+  },
+  { "id": 20, "value": "Ижевск",
+     "timezone": "UTC+4"
+  },
+  { "id": 21, "value": "Барнаул" ,
+     "timezone": "UTC+7"
+  },
+  { "id": 22, "value": "Ульяновск",
+     "timezone": "UTC+4"
+  },
+  { "id": 23, "value": "Иркутск" ,
+     "timezone": "UTC+8"
+  },
+  { "id": 24, "value": "Хабаровск",
+     "timezone": "UTC+10"
+  },
+  { "id": 25, "value": "Ярославль" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 26, "value": "Владивосток",
+     "timezone": "UTC+10"
+  },
+  { "id": 27, "value": "Махачкала" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 28, "value": "Томск",
+     "timezone": "UTC+7"
+  },
+  { "id": 29, "value": "Оренбург" ,
+     "timezone": "UTC+5"
+  },
+  { "id": 30, "value": "Кемерово",
+     "timezone": "UTC+7"
+  },
+  { "id": 31, "value": "Новокузнецк" ,
+     "timezone": "UTC+7"
+  },
+  { "id": 32, "value": "Рязань",
+     "timezone": "UTC+3"
+  },
+  { "id": 33, "value": "Астрахань" ,
+     "timezone": "UTC+4"
+  },
+  { "id": 34, "value": "Набережные Челны",
+     "timezone": "UTC+3"
+  },
+  { "id": 35, "value": "Пенза" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 36, "value": "Липецк",
+     "timezone": "UTC+3"
+  },
+  { "id": 37, "value": "Тула" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 38, "value": "Киров",
+     "timezone": "UTC+3"
+  },
+  { "id": 39, "value": "Чебоксары" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 40, "value": "Курск",
+     "timezone": "UTC+3"
+  },
+  { "id": 41, "value": "Ставрополь" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 42, "value": "Улан-Удэ",
+     "timezone": "UTC+8"
+  },
+  { "id": 43, "value": "Тверь" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 44, "value": "Магнитогорск",
+     "timezone": "UTC+5"
+  },
+  { "id": 45, "value": "Иваново" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 46, "value": "Брянск",
+     "timezone": "UTC+3"
+  },
+  { "id": 47, "value": "Сочи" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 48, "value": "Белгород",
+     "timezone": "UTC+3"
+  },
+  { "id": 49, "value": "Сургут" ,
+     "timezone": "UTC+5"
+  },
+  { "id": 50, "value": "Владимир",
+     "timezone": "UTC+3"
+  },
+  { "id": 51, "value": "Крым" ,
+     "timezone": "UTC+3"
+  },
+  { "id": 52, "value": "Симферополь",
+     "timezone": "UTC+3"
+  },
+  { "id": 53, "value": "Бахчисарай" ,
+     "timezone": "UTC+3"
+  }
+]
