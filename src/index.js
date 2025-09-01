@@ -5,13 +5,14 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import tzLookup from "tz-lookup";
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const timezones = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '../public/timezone.json'), 'utf8')
+const cities = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '../public/cities.json'), 'utf8')
 );
 
 dotenv.config();
@@ -20,22 +21,30 @@ const bot = new Bot(process.env.BOT_API_KEY)
 const webAppUrl = process.env.WEB_APP_URL;
 const backendUrl = process.env.BACKEND_URL;
 
-
-function convertToIANATimezone(tz) {
-    if (tz.startsWith('UTC+')) {
-        const offset = tz.replace('UTC+', '');
-        return `Etc/GMT-${offset}`;
-    }
-    if (tz.startsWith('UTC-')) {
-        const offset = tz.replace('UTC-', '');
-        return `Etc/GMT+${offset}`;
-    }
-    return tz;
-}
-
 function getTimezoneByCity(cityName) {
-    const city = timezones.find(c => c.value.toLowerCase() === cityName.toLowerCase());
-    return city?.timezone || null;
+    const city = cities.find(
+        (c) => c.name.toLowerCase() === cityName.toLowerCase()
+    );
+
+    if (!city) {
+        console.warn(`⚠️ Город "${cityName}" не найден в cities.json`);
+        return null;
+    }
+
+    const lat = Number(city.coords.lat);
+    const lon = Number(city.coords.lon);
+
+    if (isNaN(lat) || isNaN(lon)) {
+        console.warn(`⚠️ У города "${cityName}" некорректные координаты`);
+        return null;
+    }
+
+    try {
+        return tzLookup(lat, lon);
+    } catch (e) {
+        console.error(`⚠️ Не удалось определить часовой пояс для ${cityName}`, e);
+        return null;
+    }
 }
 
 async function scheduleDrugReminders(bot) {
@@ -56,8 +65,11 @@ async function scheduleDrugReminders(bot) {
 
             for (const timeObj of notification) {
                 const [hour, minute] = timeObj.value.split(":").map(Number);
-                const rawTimezone = getTimezoneByCity(city)
-                const timezone = convertToIANATimezone(rawTimezone);
+                const timezone  = getTimezoneByCity(city);
+
+                console.log(day, time_day)
+
+                console.log(timezone)
 
                 cron.schedule(`${minute} ${hour} * * *`, async () => {
                     try {
@@ -74,7 +86,7 @@ async function scheduleDrugReminders(bot) {
                         console.error(`Ошибка при отправке напоминания ${telegram_id} в ${timeObj.value}:`, err);
                     }
                 }, {
-                    timezone: timezone,
+                    timezone,
                 });
 
                 // console.log(`⏰ Запланировано: ${telegram_id} — ${name} в ${timeObj.value}`);
