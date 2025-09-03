@@ -69,6 +69,8 @@ async function scheduleDrugReminders(bot) {
 
                 console.log(day, time_day)
 
+                console.log(hour, minute)
+
                 console.log(timezone)
 
                 cron.schedule(`${minute} ${hour} * * *`, async () => {
