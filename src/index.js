@@ -47,9 +47,15 @@ function getTimezoneByCity(cityName) {
     }
 }
 
+let scheduledTasks = [];
+
 async function scheduleDrugReminders(bot) {
     try {
-        // Получаем данные
+        for (const task of scheduledTasks) {
+            task.stop();
+        }
+        scheduledTasks = [];
+
         const [humanRes, petRes] = await Promise.all([
             axios.get(`${backendUrl}/public/drugs`),
             axios.get(`${backendUrl}/public/pet/drugs`)
@@ -60,41 +66,38 @@ async function scheduleDrugReminders(bot) {
         const allReminders = [...humanReminders, ...petReminders];
 
         for (const reminder of allReminders) {
-            const { telegram_id, name, catigories, intake, notification, day, time_day, isPet, city  } = reminder;
+            const { telegram_id, name, catigories, intake, notification, day, time_day, isPet, city } = reminder;
             if (!telegram_id || !Array.isArray(notification)) continue;
 
-            console.log(reminder)
             for (const timeObj of notification) {
+                if (!timeObj?.value) continue;
+
                 const [hour, minute] = timeObj.value.split(":").map(Number);
-                const timezone  = getTimezoneByCity(city);
+                const timezone = getTimezoneByCity(city);
+                if (!timezone || isNaN(hour) || isNaN(minute)) continue;
 
-                console.log(timeObj)
-
-                console.log(day, time_day)
-                console.log(hour, minute)
-                console.log(timezone)
-
-                cron.schedule(`${minute} ${hour} * * *`, async () => {
+                const task = cron.schedule(`${minute} ${hour} * * *`, async () => {
                     try {
-                        await bot.api.sendMessage(telegram_id,
+                        await bot.api.sendMessage(
+                            telegram_id,
                             `💊 <b>Напоминание о приёме лекарства для ${isPet ? "питомца" : "человека"}:</b>\n\n` +
                             `<b>Категория:</b> ${catigories}\n` +
                             `<b>Название:</b> ${name}\n` +
                             `<b>Курс:</b> ${day} дней, ${time_day} раза в день\n` +
                             `<b>Способ приёма:</b> ${intake}\n`,
-                            {
-                                parse_mode: 'HTML'
-                            });
+                            { parse_mode: 'HTML' }
+                        );
                     } catch (err) {
                         console.error(`Ошибка при отправке напоминания ${telegram_id} в ${timeObj.value}:`, err);
                     }
-                }, {
-                    timezone,
-                });
+                }, { timezone });
 
-                // console.log(`⏰ Запланировано: ${telegram_id} — ${name} в ${timeObj.value}`);
+                scheduledTasks.push(task);
             }
         }
+
+        console.log(`✅ Перепланировано ${scheduledTasks.length} задач(и)`);
+
     } catch (err) {
         console.error("Ошибка при загрузке лекарств или планировании:", err);
     }
@@ -158,3 +161,7 @@ bot.catch((err) => {
 
 bot.start()
 scheduleDrugReminders(bot)
+cron.schedule("0 * * * *", async () => {
+    console.log("🔄 Обновляем расписание лекарств...");
+    await scheduleDrugReminders(bot);
+});
