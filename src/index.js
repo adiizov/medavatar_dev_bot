@@ -162,7 +162,7 @@ bot.catch((err) => {
 
 bot.start()
 setTimeout(() => scheduleDrugReminders(bot), 2000);
-cron.schedule("0 * * * *", async () => {
+cron.schedule("*/30 * * * *", async () => {
     console.log("🔄 Обновляем расписание лекарств...");
     await scheduleDrugReminders(bot);
 });
