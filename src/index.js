@@ -17,6 +17,10 @@ const cities = JSON.parse(
 
 dotenv.config();
 
+console.log("BOT_API_KEY:", process.env.BOT_API_KEY);
+console.log("WEB_APP_URL:", process.env.WEB_APP_URL);
+console.log("BACKEND_URL:", process.env.BACKEND_URL);
+
 const bot = new Bot(process.env.BOT_API_KEY)
 const webAppUrl = process.env.WEB_APP_URL;
 const backendUrl = process.env.BACKEND_URL;
